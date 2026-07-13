@@ -1,12 +1,32 @@
+---
+aside: false
+pageClass: home-page
+---
+
 # 我的文档
 
-欢迎访问文档中心。这里用于发布产品说明、操作流程和常见问题，所有内容均可直接公开访问。
+欢迎访问文档中心。这里用于发布产品说明、操作流程和常见问题，内容按主题整理，所有页面均可直接公开访问。
 
 ## 开始阅读
 
-- [快速开始](/guide/getting-started)：了解文档站点的基本结构。
-- [编写文档](/guide/writing)：添加新的 Markdown 页面。
-- [管理图片](/guide/images)：在文档中插入和维护图片。
+<div class="quick-links">
+  <a class="quick-link" href="/guide/getting-started">
+    <strong>快速开始</strong>
+    <span>了解站点结构、本地启动和正式构建。</span>
+  </a>
+  <a class="quick-link quick-link--blue" href="/guide/writing">
+    <strong>编写文档</strong>
+    <span>创建 Markdown 页面并加入文档目录。</span>
+  </a>
+  <a class="quick-link quick-link--red" href="/guide/images">
+    <strong>管理图片</strong>
+    <span>使用文章图片和全站公共图片。</span>
+  </a>
+  <a class="quick-link quick-link--gold" href="/guide/navigation">
+    <strong>配置菜单</strong>
+    <span>维护顶部导航、下拉菜单和侧边栏分组。</span>
+  </a>
+</div>
 
 ## 常用入口
 

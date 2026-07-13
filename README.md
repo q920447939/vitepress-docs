@@ -24,5 +24,6 @@ npm run docs:preview
 
 - 在 `docs/guide/` 中添加 Markdown 文档。
 - 在 `docs/.vitepress/config.mts` 中维护顶部导航和侧边栏。
+- 在 `docs/.vitepress/theme/custom.css` 中调整颜色、字体和页面样式。
 - 文章专用图片放在文章旁边的 `images/` 目录。
 - 多篇文章共用的图片放在 `docs/public/images/` 目录。

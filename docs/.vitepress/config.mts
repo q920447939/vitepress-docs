@@ -12,17 +12,37 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: '首页', link: '/' },
-      { text: '使用指南', link: '/guide/getting-started' },
+      {
+        text: '使用指南',
+        activeMatch: '/guide/',
+        items: [
+          { text: '快速开始', link: '/guide/getting-started' },
+          {
+            text: '内容维护',
+            items: [
+              { text: '编写文档', link: '/guide/writing' },
+              { text: '管理图片', link: '/guide/images' },
+              { text: '配置菜单', link: '/guide/navigation' },
+            ],
+          },
+        ],
+      },
     ],
 
     sidebar: {
       '/guide/': [
         {
-          text: '使用指南',
+          text: '开始使用',
           items: [
             { text: '快速开始', link: '/guide/getting-started' },
+          ],
+        },
+        {
+          text: '内容维护',
+          items: [
             { text: '编写文档', link: '/guide/writing' },
             { text: '管理图片', link: '/guide/images' },
+            { text: '配置菜单', link: '/guide/navigation' },
           ],
         },
       ],
