@@ -127,12 +127,12 @@ body {
   background: var(--vp-c-bg-alt);
 }
 
-.vp-doc._ > div > h1 {
+.home-page .vp-doc > div > h1 {
   margin-top: 28px;
   font-size: 40px;
 }
 
-.vp-doc._ > div > h1 + p {
+.home-page .vp-doc > div > h1 + p {
   max-width: 680px;
   margin-top: 16px;
   color: var(--vp-c-text-2);
@@ -194,12 +194,12 @@ body {
 
 @media (max-width: 767px) {
   .vp-doc h1,
-  .vp-doc._ > div > h1 {
+  .home-page .vp-doc > div > h1 {
     margin-top: 16px;
     font-size: 30px;
   }
 
-  .vp-doc._ > div > h1 + p {
+  .home-page .vp-doc > div > h1 + p {
     font-size: 16px;
   }
 
