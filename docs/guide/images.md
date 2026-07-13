@@ -19,6 +19,10 @@ docs/guide/
 ![安装界面](./images/installation-screen.png)
 ```
 
+下面这张站点首页截图就是通过相对路径加载的文章图片：
+
+![文档站点首页](./images/documentation-home.png)
+
 ## 全站公共图片
 
 Logo 等被多篇文档使用的图片放在 `docs/public/images/`：
