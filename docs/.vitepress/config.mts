@@ -17,7 +17,7 @@ export default defineConfig({
           collapsed: false,
           items: [
             {
-              text: '中转站配置',
+              text: '配置指南',
               collapsed: false,
               items: [
                 { text: '中转站配置', link: '/guide/hub/getting-start' },
