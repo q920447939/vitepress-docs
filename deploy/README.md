@@ -63,6 +63,12 @@ cat ~/.ssh/vitepress_deploy
 ssh-keyscan -H SERVER_HOST
 ```
 
+如果 SSH 使用自定义端口，例如 `2222`：
+
+```bash
+ssh-keyscan -p 2222 -H SERVER_HOST
+```
+
 将输出中的指纹与服务器控制台显示的 SSH 主机指纹核对后再使用，避免信任错误的服务器。
 
 在 GitHub 仓库中打开：
