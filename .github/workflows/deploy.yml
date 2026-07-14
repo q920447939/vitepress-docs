@@ -21,12 +21,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
@@ -64,6 +64,25 @@ jobs:
             "$SERVER_USER@$SERVER_HOST:$REMOTE_ROOT/releases/$RELEASE/"
 
           ssh -p "$SSH_PORT" "$SERVER_USER@$SERVER_HOST" \
-            "ln -sfn '$REMOTE_ROOT/releases/$RELEASE' '$REMOTE_ROOT/current' && \
-             find '$REMOTE_ROOT/releases' -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | \
-             sort -nr | tail -n +6 | cut -d' ' -f2- | xargs -r rm -rf"
+            bash -s -- "$REMOTE_ROOT" "$RELEASE" <<'REMOTE_SCRIPT'
+          set -euo pipefail
+
+          REMOTE_ROOT="$1"
+          RELEASE="$2"
+          TEMP_LINK="$REMOTE_ROOT/.current-$RELEASE"
+
+          ln -sfn "$REMOTE_ROOT/releases/$RELEASE" "$TEMP_LINK"
+          mv -Tf "$TEMP_LINK" "$REMOTE_ROOT/current"
+
+          mapfile -d '' -t OLD_RELEASES < <(
+            find "$REMOTE_ROOT/releases" \
+              -mindepth 1 -maxdepth 1 -type d -printf '%T@\t%p\0' |
+              sort -z -nr |
+              tail -z -n +6 |
+              cut -z -f2-
+          )
+
+          for OLD_RELEASE in "${OLD_RELEASES[@]}"; do
+            rm -rf -- "$OLD_RELEASE"
+          done
+          REMOTE_SCRIPT

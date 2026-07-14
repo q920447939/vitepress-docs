@@ -14,6 +14,7 @@ git push
 ```
 
 构建或上传失败时不会切换 `current`，线上继续使用上一次成功版本。服务器保留最近 5 个版本。
+工作流先创建临时软链接，再通过同一文件系统内的 `mv -Tf` 原子替换 `current`，切换过程中不会出现链接缺失窗口。
 
 ## 一、创建服务器部署用户
 
@@ -42,6 +43,17 @@ ssh-keygen -t ed25519 -C "github-actions-vitepress" -f ~/.ssh/vitepress_deploy
 ```bash
 ssh-copy-id -i ~/.ssh/vitepress_deploy.pub deploy@SERVER_HOST
 ```
+
+部署用户是专用账号，可以给刚安装的公钥增加 OpenSSH 限制，禁止端口转发、代理转发和交互式终端：
+
+```bash
+sudo sed -i 's/^ssh-ed25519 /restrict ssh-ed25519 /' \
+  /home/deploy/.ssh/authorized_keys
+sudo chown deploy:deploy /home/deploy/.ssh/authorized_keys
+sudo chmod 600 /home/deploy/.ssh/authorized_keys
+```
+
+`restrict` 仍允许 GitHub Actions 执行本项目需要的非交互式发布命令。
 
 测试登录：
 
