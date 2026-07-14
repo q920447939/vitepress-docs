@@ -1,5 +1,31 @@
 import { defineConfig } from 'vitepress'
 
+const sharedSidebar = [
+  {
+    text: '中转站',
+    collapsed: false,
+    items: [
+      { text: '中转站充值', link: '/guide/hub/exchange-balance' },
+      { text: '中转站密钥使用教程', link: '/guide/hub/api-key-use' },
+      { text: 'CC Switch使用教程', link: '/guide/hub/ccs-tutorial' },
+    ],
+  },
+  {
+    text: '拼车',
+    collapsed: false,
+    items: [
+      { text: '拼车方案', link: '/rider/' },
+    ],
+  },
+  {
+    text: 'Claude',
+    collapsed: false,
+    items: [
+      { text: 'Claude降低封号', link: '/claude/' },
+    ],
+  },
+]
+
 export default defineConfig({
   lang: 'zh-CN',
   title: '我的文档',
@@ -11,21 +37,9 @@ export default defineConfig({
 
   themeConfig: {
     sidebar: {
-      '/guide/': [
-        {
-          text: '中转站',
-          collapsed: false,
-          items: [
-            {
-              text: '配置指南',
-              collapsed: false,
-              items: [
-                { text: '中转站配置', link: '/guide/hub/getting-start' },
-              ],
-            },
-          ],
-        },
-      ],
+      '/guide/': sharedSidebar,
+      '/rider/': sharedSidebar,
+      '/claude/': sharedSidebar,
     },
 
     outline: {
