@@ -20,6 +20,12 @@ npm run docs:preview
 
 生产文件生成在 `docs/.vitepress/dist/`，可以部署到 Nginx 或其他静态文件服务。
 
+## 自动部署
+
+项目包含 GitHub Actions 自动部署工作流。推送到 `main` 分支后，GitHub 会构建文档并通过 SSH 发布到 Nginx 服务器。
+
+首次配置请阅读 [GitHub Actions 自动部署指南](deploy/README.md)。
+
 ## 内容维护
 
 - 在 `docs/guide/` 中添加 Markdown 文档。
