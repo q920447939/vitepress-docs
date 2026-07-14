@@ -62,6 +62,11 @@ body {
   font-weight: 700;
 }
 
+.VPSidebarItem.level-0 > .items {
+  padding-left: 16px;
+  border-left: 1px solid var(--vp-c-divider);
+}
+
 .VPSidebarItem.level-1 > .item > .text {
   color: var(--vp-c-text-1);
   font-weight: 600;
