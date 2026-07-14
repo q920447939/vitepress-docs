@@ -62,7 +62,12 @@ body {
   font-weight: 700;
 }
 
-.VPSidebarItem.level-1.is-active > .item .link > .text {
+.VPSidebarItem.level-1 > .item > .text {
+  color: var(--vp-c-text-1);
+  font-weight: 600;
+}
+
+.VPSidebarItem.is-active > .item .link > .text {
   color: var(--vp-c-brand-1);
   font-weight: 600;
 }

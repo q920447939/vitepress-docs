@@ -46,21 +46,38 @@ nav: [
 sidebar: {
   '/guide/': [
     {
-      text: '开始使用',
+      text: '使用指南',
+      collapsed: false,
       items: [
-        { text: '快速开始', link: '/guide/getting-started' },
-      ],
-    },
-    {
-      text: '内容维护',
-      items: [
-        { text: '编写文档', link: '/guide/writing' },
-        { text: '管理图片', link: '/guide/images' },
+        {
+          text: '入门',
+          collapsed: false,
+          items: [
+            { text: '快速开始', link: '/guide/getting-started' },
+          ],
+        },
+        {
+          text: '内容管理',
+          collapsed: false,
+          items: [
+            { text: '编写文档', link: '/guide/writing' },
+            { text: '管理图片', link: '/guide/images' },
+          ],
+        },
+        {
+          text: '站点设置',
+          collapsed: true,
+          items: [
+            { text: '配置菜单', link: '/guide/navigation' },
+          ],
+        },
       ],
     },
   ],
 }
 ```
+
+这个结构会显示为“使用指南 → 入门 / 内容管理 / 站点设置 → 页面”。分类只负责组织页面，不需要对应 Markdown 文件。
 
 如果需要让某一组默认折叠，可以增加 `collapsed: true`：
 
