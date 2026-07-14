@@ -136,7 +136,21 @@ sudo systemctl reload nginx
 
 第一次发布前 `current` 还不存在，Nginx 返回 404 属于正常现象。
 
-## 五、关联 GitHub 仓库
+## 五、启用 HTTPS
+
+域名解析到服务器并确认 HTTP 可以访问后，使用 Certbot 配置 HTTPS：
+
+```bash
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d docs.example.com
+sudo certbot renew --dry-run
+```
+
+将 `docs.example.com` 替换为真实域名。Certbot 会为 Nginx 增加 443 监听、证书路径和 HTTP 到 HTTPS 的跳转，并通过系统定时任务自动续期。
+
+如果服务器前面使用 Cloudflare 等负责 TLS 的 CDN，也必须确保 CDN 到用户的访问启用 HTTPS，并根据安全要求决定 CDN 回源是否同样使用 HTTPS。
+
+## 六、关联 GitHub 仓库
 
 先在 GitHub 创建空仓库，再在项目目录执行：
 
@@ -149,7 +163,7 @@ git push -u origin main
 
 也可以进入 `Actions -> Deploy documentation -> Run workflow` 手动执行一次发布。
 
-## 六、日常更新
+## 七、日常更新
 
 ```bash
 git pull --rebase
