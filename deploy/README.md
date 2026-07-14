@@ -122,7 +122,7 @@ Settings
 
 ```bash
 sudo apt update
-sudo apt install -y nginx
+sudo apt install -y nginx rsync
 ```
 
 将 `deploy/nginx.conf` 放到服务器的 `/etc/nginx/sites-available/vitepress-docs`，并把 `docs.example.com` 改成真实域名：
