@@ -44,6 +44,12 @@ ssh-keygen -t ed25519 -C "github-actions-vitepress" -f ~/.ssh/vitepress_deploy
 ssh-copy-id -i ~/.ssh/vitepress_deploy.pub deploy@SERVER_HOST
 ```
 
+自定义 SSH 端口时：
+
+```bash
+ssh-copy-id -p 2222 -i ~/.ssh/vitepress_deploy.pub deploy@SERVER_HOST
+```
+
 部署用户是专用账号，可以给刚安装的公钥增加 OpenSSH 限制，禁止端口转发、代理转发和交互式终端：
 
 ```bash
@@ -59,6 +65,12 @@ sudo chmod 600 /home/deploy/.ssh/authorized_keys
 
 ```bash
 ssh -i ~/.ssh/vitepress_deploy deploy@SERVER_HOST
+```
+
+自定义 SSH 端口时：
+
+```bash
+ssh -p 2222 -i ~/.ssh/vitepress_deploy deploy@SERVER_HOST
 ```
 
 ## 三、收集 GitHub Secrets
@@ -160,6 +172,7 @@ git push
 ### Host key verification failed
 
 重新执行 `ssh-keyscan -H SERVER_HOST`，将完整输出更新到 `SSH_KNOWN_HOSTS`。
+如果使用自定义端口，执行 `ssh-keyscan -p SERVER_PORT -H SERVER_HOST`，并确保 `SERVER_PORT` Secret 使用相同端口。
 
 ### Permission denied
 
