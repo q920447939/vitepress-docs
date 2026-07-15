@@ -126,19 +126,31 @@ sudo systemctl reload nginx
 
 第一次发布前 `current` 还不存在，Nginx 返回 404 属于正常现象。
 
-## 五、启用 HTTPS
+## 五、配置 Cloudflare HTTPS
 
-域名解析到服务器并确认 HTTP 可以访问后，使用 Certbot 配置 HTTPS：
+本项目采用下面的访问链路：
 
-```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d docs.example.com
-sudo certbot renew --dry-run
+```text
+浏览器 --HTTPS--> Cloudflare --HTTP--> Debian Nginx:80
 ```
 
-将 `docs.example.com` 替换为真实域名。Certbot 会为 Nginx 增加 443 监听、证书路径和 HTTP 到 HTTPS 的跳转，并通过系统定时任务自动续期。
+在 Cloudflare 控制台完成以下配置：
 
-如果服务器前面使用 Cloudflare 等负责 TLS 的 CDN，也必须确保 CDN 到用户的访问启用 HTTPS，并根据安全要求决定 CDN 回源是否同样使用 HTTPS。
+1. 在 `DNS -> Records` 中，将 `docs` 的 A 记录指向服务器 IP，并开启橙云代理（`Proxied`）。
+2. 打开 `Rules -> Overview -> Create rule -> Configuration Rule`，创建名为 `docs-origin-http` 的配置规则。
+3. 规则条件设为 `Hostname equals docs.ccttt99.com`，设置项选择 `SSL = Flexible`，然后发布规则。
+4. 在 `SSL/TLS -> Edge Certificates` 中，启用 `Always Use HTTPS`。
+5. 访问 `https://docs.ccttt99.com/`，确认文档可以正常打开。
+
+不要直接把整个 `ccttt99.com` Zone 的 SSL/TLS 模式改成 `Flexible`。按主机名配置规则只让 `docs.ccttt99.com` 使用 HTTP 回源，不会改变 `hub.ccttt99.com` 等其他源站的加密模式。
+
+`Always Use HTTPS` 是整个 Zone 的设置，会将所有子域名的访客 HTTP 请求重定向到 HTTPS。启用前应确认其他子域名均支持 HTTPS；如果只希望文档域名跳转，请改用仅匹配 `docs.ccttt99.com` 的 Cloudflare Single Redirect 规则。
+
+HTTPS 由 Cloudflare 边缘节点提供，Debian 源站只监听 HTTP 80，不需要安装 Certbot，也不需要开放源站 443。
+
+不要在 Nginx 中配置 HTTP 到 HTTPS 的跳转。`Flexible` 模式下 Cloudflare 使用 HTTP 回源，源站强制跳转到 HTTPS 可能造成重定向循环。`Always Use HTTPS` 应由 Cloudflare 边缘节点负责。
+
+这不是端到端加密：浏览器到 Cloudflare 的流量已加密，但 Cloudflare 到 Debian 源站的流量是明文 HTTP。如果以后需要完整链路加密，应为源站安装 Cloudflare Origin Certificate 或受信任证书，并将 Cloudflare 模式改为 `Full (strict)`。
 
 ## 六、关联 GitHub 仓库
 

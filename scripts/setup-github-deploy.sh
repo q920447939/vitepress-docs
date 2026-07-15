@@ -191,7 +191,7 @@ finish() {
 # ──────────────────────────────────────────────────────────────────────────
 
 TOTAL_STAGES=8
-TOTAL_MINUTES=25
+TOTAL_MINUTES=28
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 REPO_ROOT=$(cd -- "$SCRIPT_DIR/.." && pwd)
@@ -220,7 +220,6 @@ validate_inputs() {
   [[ "$DOCS_DOMAIN" =~ ^[A-Za-z0-9.-]+$ ]] || die "Document domain must not include https:// or a path"
   [[ "$GITHUB_REPOSITORY" =~ ^git@github\.com:[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\.git$ ]] || \
     die "GitHub repository must use the git@github.com:owner/repository.git format"
-  [[ "$LETSENCRYPT_EMAIL" =~ ^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$ ]] || die "Email address is invalid"
 }
 
 admin_ssh() {
@@ -244,20 +243,17 @@ ask SERVER_PORT "SSH port:"
 ask SERVER_ADMIN_USER "Current Debian administrator username:"
 ask DOCS_DOMAIN "Documentation domain without https://:"
 ask GITHUB_REPOSITORY "GitHub repository SSH URL:"
-ask LETSENCRYPT_EMAIL "Let's Encrypt notification email:"
 require_value "Server host" "$SERVER_HOST"
 require_value "SSH port" "$SERVER_PORT"
 require_value "Administrator username" "$SERVER_ADMIN_USER"
 require_value "Document domain" "$DOCS_DOMAIN"
 require_value "GitHub repository" "$GITHUB_REPOSITORY"
-require_value "Let's Encrypt email" "$LETSENCRYPT_EMAIL"
 validate_inputs
 write_env SERVER_HOST "$SERVER_HOST"
 write_env SERVER_PORT "$SERVER_PORT"
 write_env SERVER_ADMIN_USER "$SERVER_ADMIN_USER"
 write_env DOCS_DOMAIN "$DOCS_DOMAIN"
 write_env GITHUB_REPOSITORY "$GITHUB_REPOSITORY"
-write_env LETSENCRYPT_EMAIL "$LETSENCRYPT_EMAIL"
 
 stage "Authenticate GitHub and configure origin" 3
 if ! command -v gh >/dev/null 2>&1; then
@@ -287,30 +283,31 @@ stage "Create the Cloudflare DNS record" 3
 open_url "https://dash.cloudflare.com/"
 step "Select ccttt99.com, then open DNS -> Records -> Add record."
 step "Create or update the A record: name docs, IPv4 $SERVER_HOST, TTL Auto."
-step "Set Proxy status to DNS only until HTTPS setup is complete."
-confirm "Has the DNS record been created?" || die "DNS record is required"
+step "Set Proxy status to Proxied (orange cloud)."
+confirm "Has the proxied DNS record been created?" || die "A proxied DNS record is required"
 
 if command -v dig >/dev/null 2>&1; then
   RESOLVED_IP=$(dig +short A "$DOCS_DOMAIN" @1.1.1.1 | tail -n 1)
 else
   RESOLVED_IP=$(getent ahostsv4 "$DOCS_DOMAIN" 2>/dev/null | awk 'NR == 1 { print $1 }')
 fi
-if [[ "$RESOLVED_IP" == "$SERVER_HOST" ]]; then
-  say "DNS resolves to $RESOLVED_IP."
+if [[ -n "$RESOLVED_IP" ]]; then
+  say "DNS resolves through Cloudflare to $RESOLVED_IP."
+  note "A proxied record returns a Cloudflare edge address, not the origin IP."
 else
-  warn "DNS currently resolves to '${RESOLVED_IP:-nothing}', not $SERVER_HOST."
-  pause "DNS propagation can take time. Press Enter to continue when ready."
+  warn "DNS does not resolve yet. Cloudflare changes can take time to propagate."
+  pause "Press Enter to continue after the DNS record resolves."
 fi
 
 stage "Initialize the Debian 12 server" 4
-say "This installs Nginx, rsync and Certbot, creates deploy, and prepares /var/www/vitepress-docs."
+say "This installs Nginx and rsync, creates deploy, and prepares /var/www/vitepress-docs."
 PRECHECK_HOST_KEY=$(ssh-keyscan -p "$SERVER_PORT" -H -t ed25519 "$SERVER_HOST" 2>/dev/null)
 [[ -n "$PRECHECK_HOST_KEY" ]] || die "Could not read the server SSH host key"
 PRECHECK_FINGERPRINT=$(printf '%s\n' "$PRECHECK_HOST_KEY" | ssh-keygen -lf -)
 say "Scanned SSH fingerprint: $PRECHECK_FINGERPRINT"
 step "Open the hosting provider's web console and run: ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub"
 confirm "Does the console SHA256 fingerprint match the scanned fingerprint?" || die "SSH host fingerprint did not match"
-step "Before continuing, ensure the provider firewall allows SSH port $SERVER_PORT plus TCP 80 and 443."
+step "Before continuing, ensure the provider firewall allows SSH port $SERVER_PORT and origin HTTP on TCP 80."
 confirm "Are the required firewall ports open?" || die "Open the firewall ports before continuing"
 confirm "Run the Debian initialization commands on $SERVER_HOST?" || die "Server initialization was cancelled"
 ssh -p "$SERVER_PORT" -t "$SERVER_ADMIN_USER@$SERVER_HOST" 'bash -s' <<'SERVER_SETUP'
@@ -321,7 +318,7 @@ else
   SUDO=(sudo)
 fi
 "${SUDO[@]}" apt-get update
-"${SUDO[@]}" apt-get install -y nginx rsync certbot python3-certbot-nginx
+"${SUDO[@]}" apt-get install -y nginx rsync
 if ! id deploy >/dev/null 2>&1; then
   "${SUDO[@]}" useradd --create-home --shell /bin/bash deploy
 fi
@@ -386,7 +383,7 @@ admin_ssh 'set -euo pipefail
   rm -f /tmp/vitepress-docs.nginx.conf'
 say "Nginx is ready. A 404 is expected until the first GitHub deployment finishes."
 
-stage "Push main and watch the first deployment" 3
+stage "Deploy and configure Cloudflare HTTPS" 7
 if [[ -n "$(git status --short)" ]]; then
   warn "The working tree has uncommitted files. Only existing commits will be pushed."
   git status --short
@@ -408,29 +405,24 @@ else
   pause "Press Enter after the deployment succeeds."
 fi
 
-if curl -fsSI --max-time 15 "http://$DOCS_DOMAIN/" >/dev/null; then
-  say "HTTP documentation site is reachable."
+if curl -fsSI --max-time 15 -H "Host: $DOCS_DOMAIN" "http://$SERVER_HOST/" >/dev/null; then
+  say "The Nginx origin is reachable over HTTP."
 else
-  warn "HTTP verification failed. Check DNS, ports 80/443, and the Actions log."
-  pause "Press Enter after HTTP works."
+  warn "Origin HTTP verification failed. Check TCP 80, Nginx, and the Actions log."
+  pause "Press Enter after the origin works over HTTP."
 fi
 
-stage "Enable HTTPS and finish" 4
-confirm "Request a Let's Encrypt certificate for $DOCS_DOMAIN?" || die "HTTPS setup was cancelled"
-ssh -p "$SERVER_PORT" -t "$SERVER_ADMIN_USER@$SERVER_HOST" \
-  bash -s -- "$DOCS_DOMAIN" "$LETSENCRYPT_EMAIL" <<'HTTPS_SETUP'
-set -euo pipefail
-DOMAIN="$1"
-EMAIL="$2"
-if [[ $(id -u) -eq 0 ]]; then SUDO=(); else SUDO=(sudo); fi
-"${SUDO[@]}" certbot --nginx --non-interactive --agree-tos --redirect -d "$DOMAIN" --email "$EMAIL"
-"${SUDO[@]}" certbot renew --dry-run
-HTTPS_SETUP
-
-curl -fsSI --max-time 20 "https://$DOCS_DOMAIN/" >/dev/null || die "HTTPS verification failed"
-open_url "https://$DOCS_DOMAIN/"
 open_url "https://dash.cloudflare.com/"
-step "Optional: enable the Cloudflare proxy for docs, then use SSL/TLS mode Full (strict)."
+step "Select ccttt99.com, open Rules -> Overview -> Create rule -> Configuration Rule."
+step "Create docs-origin-http: match Hostname equals $DOCS_DOMAIN, set SSL to Flexible, then deploy it."
+step "Open SSL/TLS -> Edge Certificates and enable Always Use HTTPS for the zone."
+warn "Do not set the entire ccttt99.com zone to Flexible; the hostname rule keeps other origins unchanged."
+warn "Do not add an HTTP-to-HTTPS redirect in Nginx; Flexible mode can otherwise cause a redirect loop."
+confirm "Is the docs-only Flexible rule deployed with Always Use HTTPS enabled?" || die "Cloudflare HTTPS setup is required"
+
+curl -fsSI --max-time 20 "https://$DOCS_DOMAIN/" >/dev/null || die "Public HTTPS verification failed"
+say "Public HTTPS is working through Cloudflare."
+open_url "https://$DOCS_DOMAIN/"
 pause "Press Enter after checking the live documentation site."
 
 finish

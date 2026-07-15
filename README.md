@@ -26,7 +26,7 @@ npm run docs:preview
 
 首次配置请阅读 [GitHub Actions 自动部署指南](deploy/README.md)。
 
-也可以运行交互式向导，它会逐步完成 Debian 12、GitHub Secrets、Nginx 和 HTTPS 配置：
+也可以运行交互式向导，它会逐步完成 Debian 12、GitHub Secrets、Nginx 和 Cloudflare HTTPS 配置：
 
 ```bash
 ./scripts/setup-github-deploy.sh
