@@ -190,8 +190,8 @@ finish() {
 # Replace the example below. Set the two totals to match the stages you write.
 # ──────────────────────────────────────────────────────────────────────────
 
-TOTAL_STAGES=8
-TOTAL_MINUTES=28
+TOTAL_STAGES=7
+TOTAL_MINUTES=26
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 REPO_ROOT=$(cd -- "$SCRIPT_DIR/.." && pwd)
@@ -218,8 +218,8 @@ validate_inputs() {
   (( SERVER_PORT >= 1 && SERVER_PORT <= 65535 )) || die "SSH port must be between 1 and 65535"
   [[ "$SERVER_ADMIN_USER" =~ ^[a-z_][a-z0-9_-]*$ ]] || die "Administrator username is invalid"
   [[ "$DOCS_DOMAIN" =~ ^[A-Za-z0-9.-]+$ ]] || die "Document domain must not include https:// or a path"
-  [[ "$GITHUB_REPOSITORY" =~ ^git@github\.com:[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\.git$ ]] || \
-    die "GitHub repository must use the git@github.com:owner/repository.git format"
+  [[ "$GITHUB_REPOSITORY" =~ ^(git@github\.com:|https://github\.com/)[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\.git$ ]] || \
+    die "GitHub repository must use an SSH or HTTPS github.com URL ending in .git"
 }
 
 admin_ssh() {
@@ -228,21 +228,13 @@ admin_ssh() {
 
 banner "VitePress GitHub deployment setup"
 
-stage "Revoke the exposed GitHub token" 2
-warn "The GitHub token previously pasted into chat must be treated as compromised."
-open_url "https://github.com/settings/tokens"
-step "Delete or revoke the exposed token. Do not paste a replacement token into this wizard."
-if ! confirm "Have you revoked the exposed GitHub token?"; then
-  die "Revoke the token before continuing"
-fi
-
 stage "Confirm deployment values" 3
 say "Only non-secret setup values are saved to .deploy-wizard.env."
 ask SERVER_HOST "Server IP or hostname:"
 ask SERVER_PORT "SSH port:"
 ask SERVER_ADMIN_USER "Current Debian administrator username:"
 ask DOCS_DOMAIN "Documentation domain without https://:"
-ask GITHUB_REPOSITORY "GitHub repository SSH URL:"
+ask GITHUB_REPOSITORY "GitHub repository URL:"
 require_value "Server host" "$SERVER_HOST"
 require_value "SSH port" "$SERVER_PORT"
 require_value "Administrator username" "$SERVER_ADMIN_USER"
