@@ -11,10 +11,11 @@ const sharedSidebar = [
     ],
   },
   {
-    text: '拼车',
+    text: 'Chat GPT',
     collapsed: false,
     items: [
-      { text: '拼车方案', link: '/rider/' },
+      { text: 'GPT Pro20x拼车', link: '/chatGPT/ridder' },
+      { text: 'GPT  封号后的申诉措施', link: '/chatGPT/appeal-tutorial' },
     ],
   },
   {
@@ -28,19 +29,24 @@ const sharedSidebar = [
 
 export default defineConfig({
   lang: 'zh-CN',
-  title: '我的文档',
-  description: '使用文档',
+  title: '呱呱 AI 使用文档',
+  description: '产品使用教程与常见问题',
   cleanUrls: true,
   lastUpdated: true,
 
-  head: [['meta', { name: 'theme-color', content: '#ffffff' }]],
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/images/logo.svg' }],
+    ['meta', { name: 'theme-color', content: '#ffffff' }],
+  ],
 
   themeConfig: {
-    sidebar: {
-      '/guide/': sharedSidebar,
-      '/rider/': sharedSidebar,
-      '/claude/': sharedSidebar,
+    logo: {
+      src: '/images/logo.svg',
+      alt: '呱呱 AI',
     },
+    siteTitle: '呱呱 AI 文档',
+
+    sidebar: sharedSidebar,
 
     outline: {
       label: '本页目录',
