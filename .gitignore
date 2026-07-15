@@ -3,3 +3,4 @@ docs/.vitepress/cache/
 docs/.vitepress/dist/
 *.local
 .DS_Store
+.deploy-wizard.env

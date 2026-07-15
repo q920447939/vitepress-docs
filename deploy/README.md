@@ -38,25 +38,21 @@ ssh-keygen -t ed25519 -C "github-actions-vitepress" -f ~/.ssh/vitepress_deploy
 
 不要为这把自动部署密钥设置密码。它应当只用于该服务器的部署用户。
 
-将公钥安装到服务器：
+新建的 `deploy` 用户默认没有密码，因此通过当前管理员账号安装公钥。先设置服务器地址和端口：
 
 ```bash
-ssh-copy-id -i ~/.ssh/vitepress_deploy.pub deploy@SERVER_HOST
-```
+SERVER_HOST=152.53.170.85
+SERVER_PORT=22
+DEPLOY_PUBLIC_KEY=$(cat ~/.ssh/vitepress_deploy.pub)
 
-自定义 SSH 端口时：
-
-```bash
-ssh-copy-id -p 2222 -i ~/.ssh/vitepress_deploy.pub deploy@SERVER_HOST
-```
-
-部署用户是专用账号，可以给刚安装的公钥增加 OpenSSH 限制，禁止端口转发、代理转发和交互式终端：
-
-```bash
-sudo sed -i 's/^ssh-ed25519 /restrict ssh-ed25519 /' \
-  /home/deploy/.ssh/authorized_keys
-sudo chown deploy:deploy /home/deploy/.ssh/authorized_keys
-sudo chmod 600 /home/deploy/.ssh/authorized_keys
+printf 'restrict %s\n' "$DEPLOY_PUBLIC_KEY" | \
+  ssh -p "$SERVER_PORT" root@"$SERVER_HOST" '
+    set -e
+    install -d -m 700 -o deploy -g deploy /home/deploy/.ssh
+    cat > /home/deploy/.ssh/authorized_keys
+    chown deploy:deploy /home/deploy/.ssh/authorized_keys
+    chmod 600 /home/deploy/.ssh/authorized_keys
+  '
 ```
 
 `restrict` 仍允许 GitHub Actions 执行本项目需要的非交互式发布命令。
@@ -64,13 +60,7 @@ sudo chmod 600 /home/deploy/.ssh/authorized_keys
 测试登录：
 
 ```bash
-ssh -i ~/.ssh/vitepress_deploy deploy@SERVER_HOST
-```
-
-自定义 SSH 端口时：
-
-```bash
-ssh -p 2222 -i ~/.ssh/vitepress_deploy deploy@SERVER_HOST
+ssh -p "$SERVER_PORT" -i ~/.ssh/vitepress_deploy deploy@"$SERVER_HOST"
 ```
 
 ## 三、收集 GitHub Secrets
