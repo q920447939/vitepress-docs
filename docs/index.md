@@ -11,9 +11,9 @@ pageClass: home-page
 ## 内购吹水群
 
 <div class="support-groups">
-  <a class="support-group" href="https://qn.ldxp.cn/a5/7cbd762172c8d3bc1240ac9c878bd0.jpg" target="_blank" rel="noopener noreferrer">
+  <a class="support-group" href="https://qn.ldxp.cn/7e/772bef7c84bac84713970184c509dc.png" target="_blank" rel="noopener noreferrer">
     <div class="support-group__media">
-      <img src="https://qn.ldxp.cn/a5/7cbd762172c8d3bc1240ac9c878bd0.jpg" alt="微信群二维码" width="1031" height="1480" decoding="async">
+      <img src="https://qn.ldxp.cn/7e/772bef7c84bac84713970184c509dc.png" alt="微信群二维码" width="1031" height="1480" decoding="async">
     </div>
     <strong>微信群</strong>
   </a>

@@ -8,6 +8,8 @@ const sharedSidebar = [
       { text: '中转站充值', link: '/guide/hub/exchange-balance' },
       { text: '中转站密钥使用教程', link: '/guide/hub/api-key-use' },
       { text: 'CC Switch使用教程', link: '/guide/hub/ccs-tutorial' },
+      { text: 'CPA 与 CPA Manager Plus 一体化部署教程', link: '/guide/hub/CPA-Manager-Plus-start' },
+      { text: 'GPT 反代教程：使用 Cockpit 导入账号并启动 API 服务', link: '/guide/hub/gpt-reProxy' },
     ],
   },
   {
@@ -15,7 +17,8 @@ const sharedSidebar = [
     collapsed: false,
     items: [
       { text: 'GPT Pro20x拼车', link: '/chatGPT/ridder' },
-      { text: 'GPT  封号后的申诉措施', link: '/chatGPT/appeal-tutorial' },
+      { text: 'GPT 封号后的申诉措施', link: '/chatGPT/appeal-tutorial' },
+      { text: 'GPT 登录凭证详解：AT、RT、Session 与 JSON 文件的生命周期', link: '/chatGPT/auth-credentials' },
     ],
   },
   {
