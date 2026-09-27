@@ -10,6 +10,7 @@ const sharedSidebar = [
       { text: 'CC Switch使用教程', link: '/guide/hub/ccs-tutorial' },
       { text: 'CPA 与 CPA Manager Plus 一体化部署教程', link: '/guide/hub/CPA-Manager-Plus-start' },
       { text: 'GPT 反代教程：使用 Cockpit 导入账号并启动 API 服务', link: '/guide/hub/gpt-reProxy' },
+      { text: 'GPT 文生图/图生图教程', link: '/guide/hub/generator-image' },
     ],
   },
   {
